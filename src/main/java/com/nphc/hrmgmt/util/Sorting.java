@@ -44,7 +44,10 @@ public interface Sorting {
 						.collect(Collectors.toList());
 			}
 
+		}else {
+			sortedList = employees ;
 		}
+
 		return sortedList;
 	}
 }

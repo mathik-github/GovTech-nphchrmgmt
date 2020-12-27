@@ -21,8 +21,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> ,Pag
 	 * @param limit
 	 * @return
 	 */
-	@Query(value="SELECT *FROM Employee  WHERE salary >= ?1 and salary <= ?2 ORDER BY id limit ?3 ,?4", nativeQuery = true)
-	public List<Employee> searchEmployees(BigDecimal minSalary,BigDecimal maxSalary,  int offset, int limit);
+	@Query(value="SELECT *FROM Employee  WHERE salary >= ?1 and salary < ?2 ORDER BY id", nativeQuery = true)
+	public List<Employee> searchEmployees(BigDecimal minSalary,BigDecimal maxSalary);
+
+	@Query(value="SELECT *FROM Employee  WHERE salary >= ?1 and salary < ?2 ORDER BY id limit ?3 ,?4", nativeQuery = true)
+	public List<Employee> searchEmployeesWithLimit(BigDecimal minSalary,BigDecimal maxSalary,  int offset, int limit);
 
 	/**
 	 * 

@@ -1,6 +1,7 @@
 package com.nphc.hrmgmt.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,7 +32,7 @@ public class EmployeeService {
 
 	@Autowired
 	ApplicationProperties properties;
-	
+
 	/**
 	 * To  upload the file into DB
 	 * @param file
@@ -45,19 +46,19 @@ public class EmployeeService {
 			List<EmployeeRequestDto> employeeDtos = CSVHelper.readCSVFile(file.getInputStream());
 
 			Employee employee =null;
-		
+
 			List<Employee> employees =  null ;
-			
+
 			List<String> errorsList = new ArrayList<String>();
-			
+
 			StringBuffer errors = new StringBuffer();
 
 			if(null != employeeDtos && !employeeDtos.isEmpty()) {
-				
+
 				employees =  new ArrayList<Employee>();
-				
+
 				for(EmployeeRequestDto employeeRequestDto :employeeDtos) {
-					
+
 					StringBuffer errorsMsg = new StringBuffer();
 
 					employee = this.getEmployee(employeeRequestDto.getId());
@@ -69,9 +70,9 @@ public class EmployeeService {
 						if(!employee.getLogin().equalsIgnoreCase(employeeRequestDto.getLogin())) {
 							if(this.isLoginExists(employeeRequestDto.getLogin())) {
 								errorsMsg.append("Employee login not unique of employee id ")
-								      .append(employeeRequestDto.getId())
-								      .append(" , ");
-								   
+								.append(employeeRequestDto.getId())
+								.append(" , ");
+
 							}
 						}
 					}
@@ -80,10 +81,10 @@ public class EmployeeService {
 					 *  Validate the salary and Date 
 					 */
 					String isValidEmp =  ValidateEmployee.validate(employeeRequestDto);
-					
+
 					errorsMsg.append(isValidEmp);
-					    
-			
+
+
 					if(null != errorsMsg && errorsMsg.length()==0) {
 
 						employee = new Employee();
@@ -95,18 +96,18 @@ public class EmployeeService {
 						employee.setStartDate(Date.valueOf(DateConvertor.dateConvertor(employeeRequestDto.getStartDate())));
 
 						employees.add(employee);
-                       
+
 					}
 					errorsList.add(errorsMsg.toString());			
-          
+
 				}
-				
-				
+
+
 				employeeRepository.saveAll(employees);
 			}	
-			
+
 			errorsList.forEach(error->errors.append(error));
-			
+
 			return errors.toString();
 
 		}catch(IOException e) {
@@ -126,13 +127,29 @@ public class EmployeeService {
 
 		List<Employee> employees = new ArrayList<Employee>();
 
-		/**
-		 *    Default search result 
-		 */
-		employees = employeeRepository.searchEmployees(empSearchRequestDto.getMinSalary(),
-				empSearchRequestDto.getMaxSalary(),
-				empSearchRequestDto.getStartingOffset(),
-				empSearchRequestDto.getLimit());
+
+		if(null != empSearchRequestDto) {
+
+			if(empSearchRequestDto.getMaxSalary().compareTo(BigDecimal.ZERO) == 0) {
+				empSearchRequestDto.setMaxSalary(new BigDecimal(4000));
+			} 
+
+			if(empSearchRequestDto.getMinSalary().compareTo(empSearchRequestDto.getMaxSalary())==1) {
+				throw new RuntimeException("Invalid Search Criteria . Max salary should be  greater than Min Salary ");
+			}else if(empSearchRequestDto.getStartingOffset()==0 || empSearchRequestDto.getLimit() == 0) {
+
+				employees = employeeRepository.searchEmployees(empSearchRequestDto.getMinSalary(),
+						empSearchRequestDto.getMaxSalary());
+
+			}else if (empSearchRequestDto.getLimit()>0) {
+
+				employees = employeeRepository.searchEmployeesWithLimit(empSearchRequestDto.getMinSalary(),
+						empSearchRequestDto.getMaxSalary(),
+						empSearchRequestDto.getStartingOffset(),
+						empSearchRequestDto.getLimit());
+
+			}
+		}
 
 
 		/**

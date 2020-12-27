@@ -2,9 +2,10 @@ package com.nphc.hrmgmt.controller;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -80,11 +81,15 @@ public class EmployeeController {
 	 * @return
 	 */
 	@RequestMapping(value = "/users", method = RequestMethod.GET)
-	public List<Employee> fetchEmployees(@RequestBody EmpSearchRequestDto searchRequest) {
+	public Map<String, List<Employee>> fetchEmployees(@RequestBody EmpSearchRequestDto searchRequest) {
+
+		Map<String, List<Employee>> results = new HashMap<String, List<Employee>>();
 
 		List<Employee> employees = employeeService.fetchEmployees(searchRequest);
 
-		return employees;
+		results.put("results", employees);
+
+		return results;
 	}
 
 
