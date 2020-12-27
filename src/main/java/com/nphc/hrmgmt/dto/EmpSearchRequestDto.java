@@ -3,14 +3,21 @@ package com.nphc.hrmgmt.dto;
 import java.math.BigDecimal;
 
 public class EmpSearchRequestDto {
-	
+
 	private BigDecimal minSalary;
 	private BigDecimal maxSalary;
 	private int startingOffset;
 	private int limit;
 	private String filter;
 	private String sorting;
-	
+
+	public EmpSearchRequestDto() {
+		minSalary = new BigDecimal(0);
+		maxSalary = new BigDecimal(0);
+		filter = "id";
+		sorting = "ASC";
+	}
+
 	public BigDecimal getMinSalary() {
 		return minSalary;
 	}
@@ -52,8 +59,8 @@ public class EmpSearchRequestDto {
 		return "EmpSearchRequestDto [minSalary=" + minSalary + ", maxSalary=" + maxSalary + ", startingOffset="
 				+ startingOffset + ", limit=" + limit + ", filter=" + filter + ", sorting=" + sorting + "]";
 	}
-	
-	
-	
+
+
+
 
 }
